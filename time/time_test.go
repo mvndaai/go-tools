@@ -206,3 +206,34 @@ func TestCompareParseDurations(t *testing.T) {
 		})
 	}
 }
+
+func BenchmarkTestParseDurationWithUnits(b *testing.B) {
+	const ds = "2w3d5h2m"
+	unitMap := map[string]uint64{
+		"ns": uint64(gotime.Nanosecond),
+		"us": uint64(gotime.Microsecond),
+		"µs": uint64(gotime.Microsecond), // U+00B5 = micro symbol
+		"μs": uint64(gotime.Microsecond), // U+03BC = Greek letter mu
+		"ms": uint64(gotime.Millisecond),
+		"s":  uint64(gotime.Second),
+		"m":  uint64(gotime.Minute),
+		"h":  uint64(gotime.Hour),
+		"d":  uint64(time.Day),
+		"w":  uint64(time.Week),
+	}
+
+	for i := 0; i < b.N; i++ {
+		time.ParseDurationWithUnits(ds, unitMap)
+	}
+}
+
+func BenchmarkTestParseLongDuration(b *testing.B) {
+	const ds = "2w3d5h2m"
+
+	for i := 0; i < b.N; i++ {
+		time.ParseLongDuration(ds)
+	}
+}
+
+// BenchmarkTestParseDurationWithUnits-10	17278627	67.03 ns/op	   0 B/op	 0 allocs/op
+// BenchmarkTestParseLongDuration-10     	  464401	2515  ns/op	3171 B/op	39 allocs/op
