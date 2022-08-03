@@ -9,6 +9,48 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestConvertLongDuration(t *testing.T) {
+	defaultMultiplier := map[string]float64{
+		"d": 24,
+		"w": 168,
+	}
+
+	tests := []struct {
+		in         string
+		out        string
+		multiplier map[string]float64
+		err        error
+	}{
+		{in: "1h", out: "1h"},
+		{in: "1d1h", out: "24h1h"},
+		{in: "--1d", out: "--24h"},
+		{in: "-+-1d", out: "-+-24h"},
+		{in: "+-1d", out: "+-24h"},
+		{in: "-+1d", out: "-+24h"},
+		{in: "", out: ""},
+		{in: "5", out: "5"},
+		{in: "1fortnight", out: "336h", multiplier: map[string]float64{"fortnight": 24 * 14, "w": 168}},
+		{in: "..5d", err: fmt.Errorf(`time: invalid duration "..5d"`)},
+		{in: "1f", out: "1f", multiplier: map[string]float64{"f|g": 1}},
+		{in: "1g", out: "1g", multiplier: map[string]float64{"f|g": 1}},
+		{in: "1f|g", out: "1h", multiplier: map[string]float64{"f|g": 1}},
+		{in: "1f", out: "1f", multiplier: map[string]float64{".*": 3}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.in, func(t *testing.T) {
+			m := defaultMultiplier
+			if tt.multiplier != nil {
+				m = tt.multiplier
+			}
+
+			d, err := time.ConvertLongDuration(tt.in, m)
+			assert.Equal(t, tt.out, d)
+			assert.Equal(t, tt.err, err)
+		})
+	}
+}
+
 func TestParseLongDuration(t *testing.T) {
 	tests := []struct {
 		input    string

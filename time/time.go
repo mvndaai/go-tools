@@ -14,10 +14,9 @@ const (
 	Week               = 168 * time.Hour
 )
 
-// ParseLongDuration allows w,d in time.ParseDuration with a d=24h and w=7d
-func ParseLongDuration(s string) (time.Duration, error) {
+func ConvertLongDuration(s string, hourMultiplier map[string]float64) (string, error) {
 	if len(s) == 0 {
-		return time.ParseDuration(s)
+		return s, nil
 	}
 
 	var converted = s
@@ -28,17 +27,18 @@ func ParseLongDuration(s string) (time.Duration, error) {
 		converted = converted[1:]
 	}
 
-	multiplier := map[string]float64{
-		"d": 24,
-		"w": 168,
+	var units []string
+	for unit, _ := range hourMultiplier {
+		units = append(units, unit)
 	}
 
-	var re = regexp.MustCompile(`(?m)([0-9.]+)([w|d]+)`)
+	regexStr := fmt.Sprintf(`(?m)([0-9.]+)([%s]+)`, strings.Join(units, "|"))
+	var re = regexp.MustCompile(regexStr)
 	for _, match := range re.FindAllStringSubmatch(s, -1) {
-		if m, ok := multiplier[match[2]]; ok {
+		if m, ok := hourMultiplier[match[2]]; ok {
 			v, err := strconv.ParseFloat(match[1], 64)
 			if err != nil {
-				return 0, fmt.Errorf(`time: invalid duration "%s"`, s)
+				return "", fmt.Errorf(`time: invalid duration "%s"`, s)
 			}
 			hours := v * m
 			h := strconv.FormatFloat(hours, 'f', -1, 64) + "h"
@@ -47,6 +47,20 @@ func ParseLongDuration(s string) (time.Duration, error) {
 	}
 
 	converted = string(operator) + converted
+
+	return converted, nil
+}
+
+// ParseLongDuration allows w,d in time.ParseDuration with a d=24h and w=7d
+func ParseLongDuration(s string) (time.Duration, error) {
+	multiplier := map[string]float64{
+		"d": 24,
+		"w": 168,
+	}
+	converted, err := ConvertLongDuration(s, multiplier)
+	if err != nil {
+		return 0, err
+	}
 	return time.ParseDuration(converted)
 }
 
