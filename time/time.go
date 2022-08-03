@@ -23,12 +23,8 @@ func ParseLongDuration(s string) (time.Duration, error) {
 	var converted = s
 
 	var operator string
-	if s[0] == '+' {
-		operator = "+"
-		converted = converted[1:]
-	}
-	if s[0] == '-' {
-		operator = "-"
+	if s[0] == '+' || s[0] == '-' {
+		operator = string(s[0])
 		converted = converted[1:]
 	}
 

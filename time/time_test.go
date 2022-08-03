@@ -34,6 +34,9 @@ func TestParseLongDuration(t *testing.T) {
 		{input: "1d2", equivent: "24h2"},
 		{input: "+-2h", equivent: "+-2h"},
 		{input: "", equivent: ""},
+		{input: "0", equivent: "0"},
+		{input: "-0", equivent: "-0"},
+		{input: "+0", equivent: "+0"},
 	}
 
 	for _, tt := range tests {
