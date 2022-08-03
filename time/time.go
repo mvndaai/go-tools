@@ -27,7 +27,6 @@ func ParseLongDuration(s string) (time.Duration, error) {
 	}
 
 	var hours float64
-	fmt.Println("original converted", converted)
 	var re = regexp.MustCompile(`(?m)([0-9.]+)([a-z]+)`)
 	for _, match := range re.FindAllStringSubmatch(s, -1) {
 		var multiplier float64
@@ -49,13 +48,11 @@ func ParseLongDuration(s string) (time.Duration, error) {
 		converted = strings.Replace(converted, match[0], "", 1)
 	}
 
-	fmt.Println("converted before hours", converted)
 	if hours != 0 {
 		h := fmt.Sprintf("%f", hours)
 		h = strings.TrimRight(strings.TrimRight(h, "0"), ".")
 		converted = fmt.Sprintf("%sh%s", h, converted)
 	}
-	fmt.Println("converted before operator", converted)
 	converted = fmt.Sprintf("%s%s", string(operator), converted)
 
 	return time.ParseDuration(converted)
