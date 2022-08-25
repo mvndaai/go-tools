@@ -2,8 +2,6 @@ package redact
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestWords(t *testing.T) {
@@ -23,7 +21,9 @@ func TestWords(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
-			assert.Equal(t, tt.expected, Words(tt.in))
+			if actual := Words(tt.in); tt.expected != actual {
+				t.Errorf("'%s' did not match expected '%s'", actual, tt.expected)
+			}
 		})
 	}
 }
@@ -41,7 +41,9 @@ func TestEmail(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
-			assert.Equal(t, tt.expected, Email(tt.in))
+			if actual := Email(tt.in); tt.expected != actual {
+				t.Errorf("'%s' did not match expected '%s'", actual, tt.expected)
+			}
 		})
 	}
 }
@@ -64,7 +66,9 @@ func TestPhone(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.in, func(t *testing.T) {
-			assert.Equal(t, tt.expected, Phone(tt.in))
+			if actual := Phone(tt.in); tt.expected != actual {
+				t.Errorf("'%s' did not match expected '%s'", actual, tt.expected)
+			}
 		})
 	}
 }
